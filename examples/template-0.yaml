@@ -1,7 +1,7 @@
 name: "Example 0"
 jobs:
-  - jobs/hello-world.yaml
-on:
-  - on/on-push-to-master.yaml
-  - on/on-pull-request-master.yaml
-  - on/workflow-dispatch.yaml
+  - examples/jobs/hello-world.yaml
+events:
+  - examples/events/on-push-to-master.yaml
+  - examples/events/on-pull-request-master.yaml
+  - examples/events/workflow-dispatch.yaml
