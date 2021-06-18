@@ -5,4 +5,3 @@ on:
   - on-push-to-master.yaml
   - on-pull-request-master.yaml
   - workflow-dispatch.yaml
-
