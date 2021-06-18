@@ -21,9 +21,24 @@ def _load_template_file(filename: str) -> Dict:
 def _load_jobs(template: Dict) -> List:
     job_dicts = []
     jobs = template["jobs"]
-    for job_filepath in jobs:
-        with open(job_filepath) as f:
-            job_dicts.append(yaml.safe_load(f.read()))
+
+    for job in jobs:
+        path = job["path"]
+        with open(path) as f:
+
+            job_dict = yaml.safe_load(f.read())
+
+            if "steps" in job:
+                job_dict["steps"] = []
+                steps = job["steps"]
+                for step in steps:
+                    with open(step, "r") as sf:
+                        step_list = yaml.safe_load(sf.read())
+                        for s in step_list:
+                            job_dict["steps"].append(s)
+
+            job_dicts.append(job_dict)
+
     return job_dicts
 
 

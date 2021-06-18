@@ -1,6 +1,10 @@
 name: "Example 0"
 jobs:
-  - examples/jobs/hello-world.yaml
+  - path: examples/jobs/hello-world.yaml
+    steps:
+    - examples/steps/hello-world-steps-0.yaml
+    - examples/steps/hello-world-steps-1.yaml
+    - examples/steps/setup-python-3.6.yaml
 events:
   - examples/events/on-push-to-master.yaml
   - examples/events/on-pull-request-master.yaml
