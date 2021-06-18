@@ -4,7 +4,8 @@ import sys
 import argparse
 from typing import Dict, List
 
-import yaml
+import ruamel.yaml
+yaml = ruamel.yaml.YAML()
 
 
 def _parse_args() -> argparse.Namespace:
@@ -15,7 +16,7 @@ def _parse_args() -> argparse.Namespace:
 
 def _load_template_file(filename: str) -> Dict:
     with open(filename, "r") as f:
-        return yaml.safe_load(f.read())
+        return yaml.load(f.read())
 
 
 def _load_jobs(template: Dict) -> List:
@@ -26,20 +27,25 @@ def _load_jobs(template: Dict) -> List:
         path = job["path"]
         with open(path) as f:
 
-            job_dict = yaml.safe_load(f.read())
+            job_dict = yaml.load(f.read())
 
             if "steps" in job:
-                job_dict["steps"] = []
-                steps = job["steps"]
-                for step in steps:
-                    with open(step, "r") as sf:
-                        step_list = yaml.safe_load(sf.read())
-                        for s in step_list:
-                            job_dict["steps"].append(s)
+                job_dict["steps"] = _get_states(job)
 
             job_dicts.append(job_dict)
 
     return job_dicts
+
+
+def _get_states(job: Dict) -> List[str]:
+    final_steps = []
+    steps = job["steps"]
+    for step in steps:
+        with open(step, "r") as sf:
+            step_list = yaml.load(sf.read())
+            for s in step_list:
+                final_steps.append(s)
+    return final_steps
 
 
 def _load_events(template: Dict) -> Dict:
@@ -47,7 +53,7 @@ def _load_events(template: Dict) -> Dict:
     event_filepaths = template["events"]
     for filepath in event_filepaths:
         with open(filepath) as f:
-            events.append(yaml.safe_load(f.read()))
+            events.append(yaml.load(f.read()))
     on_obj = {}
     for e in events:
         for k, v in e.items():
@@ -70,7 +76,7 @@ def main() -> int:
         "jobs": jobs,
     }
 
-    print(yaml.dump(github_action))
+    yaml.dump(github_action, sys.stdout)
 
     return 0
 

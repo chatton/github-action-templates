@@ -1,0 +1,5 @@
+- name: Run Bash Script
+  run: |
+    if [ -z $var ]; then
+      echo $var
+    fi

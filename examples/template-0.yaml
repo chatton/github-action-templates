@@ -5,6 +5,7 @@ jobs:
     - examples/steps/hello-world-steps-0.yaml
     - examples/steps/hello-world-steps-1.yaml
     - examples/steps/setup-python-3.6.yaml
+    - examples/steps/embedded-bash-script.yaml
 events:
   - examples/events/on-push-to-master.yaml
   - examples/events/on-pull-request-master.yaml
