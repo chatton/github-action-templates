@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import sys
-import argparse
 from typing import Dict, List
 import os
 import ruamel.yaml
@@ -13,12 +11,6 @@ DEFAULT_STEPS_DIR = "action_templates/steps"
 DEFAULT_EVENTS_DIR = "action_templates/events"
 
 
-def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description='Template Github Actions')
-    parser.add_argument("--template", "-t", type=str)
-    return parser.parse_args()
-
-
 def _load_template_file(filename: str) -> Dict:
     with open(filename, "r") as f:
         return yaml.load(f.read())
@@ -27,18 +19,18 @@ def _load_template_file(filename: str) -> Dict:
 def _get_file_path_or_default(path: str, default_path: str) -> str:
     if os.path.exists(path):
         return path
-    if os.path.exists(path+".yml"):
-        return path+".yml"
-    if os.path.exists(path+".yaml"):
-        return path+".yaml"
+    if os.path.exists(path + ".yml"):
+        return path + ".yml"
+    if os.path.exists(path + ".yaml"):
+        return path + ".yaml"
 
     default = os.path.join(default_path, path)
     if os.path.exists(default):
         return default
-    if os.path.exists(default+".yml"):
-        return default+".yml"
-    if os.path.exists(default+".yaml"):
-        return default+".yaml"
+    if os.path.exists(default + ".yml"):
+        return default + ".yml"
+    if os.path.exists(default + ".yaml"):
+        return default + ".yaml"
     raise ValueError("No such file: {}!".format(path))
 
 
@@ -89,25 +81,13 @@ def _load_events(template: Dict) -> Dict:
     return on_obj
 
 
-def main() -> int:
-    args = _parse_args()
-
-    template = _load_template_file(args.template)
-
+def template_github_action(template_path: str) -> Dict:
+    template = _load_template_file(template_path)
     name = template["name"]
     jobs = _load_jobs(template)
     events = _load_events(template)
-
-    github_action = {
+    return {
         "name": name,
         "on": events,
         "jobs": jobs,
     }
-
-    yaml.dump(github_action, sys.stdout)
-
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
