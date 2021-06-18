@@ -29,6 +29,11 @@ def _load_jobs(template: Dict) -> List:
 
             job_dict = yaml.load(f.read())
 
+            # specified a condition in the template file.
+            if "if" in job:
+                job_dict["if"] = job["if"]
+
+            # specified steps in template file.
             if "steps" in job:
                 job_dict["steps"] = _get_states(job)
 
