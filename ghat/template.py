@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from typing import Dict, List
 import os
 import ruamel.yaml
@@ -34,8 +32,8 @@ def _get_file_path_or_default(path: str, default_path: str) -> str:
     raise ValueError("No such file: {}!".format(path))
 
 
-def _load_jobs(template: Dict) -> List:
-    job_dicts = []
+def _load_jobs(template: Dict) -> Dict:
+    result = {}
     jobs = template["jobs"]
 
     for job in jobs:
@@ -52,9 +50,9 @@ def _load_jobs(template: Dict) -> List:
             if "steps" in job:
                 job_dict["steps"] = _get_states(job)
 
-            job_dicts.append(job_dict)
+            result[job_dict["name"]] = job_dict
 
-    return job_dicts
+    return result
 
 
 def _get_states(job: Dict) -> List[str]:
