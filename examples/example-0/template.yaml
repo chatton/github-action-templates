@@ -1,0 +1,5 @@
+name: "Example 0"
+jobs:
+  - hello-world.yaml
+on:
+  - on-push-to-master.yaml
