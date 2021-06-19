@@ -1,0 +1,15 @@
+name: "Example 0"
+jobs:
+  - template: tests/fixtures/jobs/hello-world.yaml
+    if: github.event.pull_request.head.repo.full_name != 'mongodb/mongodb-kubernetes-operator' && contains(github.event.pull_request.labels.*.name, 'safe-to-test')
+    steps:
+    - template: tests/fixtures/steps/hello-world-steps-0.yaml
+      if: success()
+    - template: tests/fixtures/steps/hello-world-steps-1.yaml
+    - template: tests/fixtures/steps/setup-python-3.6.yaml
+      if: always()
+    - template: tests/fixtures/steps/embedded-bash-script.yaml
+events:
+  - template: tests/fixtures/events/on-push-to-master.yaml
+  - template: tests/fixtures/events/on-pull-request-master.yaml
+  - template: tests/fixtures/events/workflow-dispatch.yaml
