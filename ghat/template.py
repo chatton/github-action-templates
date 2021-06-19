@@ -33,33 +33,36 @@ def _get_file_path_or_default(path: str, default_path: str) -> str:
 
 
 def _load_jobs(template: Dict) -> Dict:
-    result = {}
+    job_list = []
     jobs = template["jobs"]
 
     for job in jobs:
-        path = job["path"]
+        path = job["template"]
         with open(_get_file_path_or_default(path, DEFAULT_JOBS_DIR)) as f:
-
             job_dict = yaml.load(f.read())
-
             # specified a condition in the template file.
             if "if" in job:
                 job_dict["if"] = job["if"]
 
             # specified steps in template file.
             if "steps" in job:
-                job_dict["steps"] = _get_states(job)
+                job_dict["steps"] = _get_steps(job)
 
-            result[job_dict["name"]] = job_dict
+            job_list.append(job_dict)
 
-    return result
+    on_obj = {}
+    for e in job_list:
+        for k, v in e.items():
+            on_obj[k] = v
+    return on_obj
 
 
-def _get_states(job: Dict) -> List[str]:
+def _get_steps(job: Dict) -> List[str]:
     final_steps = []
     steps = job["steps"]
     for step in steps:
-        with open(_get_file_path_or_default(step, DEFAULT_STEPS_DIR), "r") as sf:
+        step_template = step["template"]
+        with open(_get_file_path_or_default(step_template, DEFAULT_STEPS_DIR), "r") as sf:
             step_list = yaml.load(sf.read())
             for s in step_list:
                 final_steps.append(s)
@@ -68,9 +71,10 @@ def _get_states(job: Dict) -> List[str]:
 
 def _load_events(template: Dict) -> Dict:
     events = []
-    event_filepaths = template["events"]
-    for filepath in event_filepaths:
-        with open(_get_file_path_or_default(filepath, DEFAULT_EVENTS_DIR)) as f:
+    all_events = template["events"]
+    for e in all_events:
+        event_template = e["template"]
+        with open(_get_file_path_or_default(event_template, DEFAULT_EVENTS_DIR)) as f:
             events.append(yaml.load(f.read()))
     on_obj = {}
     for e in events:
