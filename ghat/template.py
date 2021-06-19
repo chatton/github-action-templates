@@ -44,7 +44,10 @@ def _load_jobs(template: Dict) -> Dict:
         path = job_template["template"]
         with open(_get_file_path_or_default(path, DEFAULT_JOBS_DIR)) as f:
             job_dict = yaml.load(f.read())
+            # comment does not work as we return a dict, not a yaml object.
+            # job_dict.yaml_set_start_comment("Template: " + path, indent=4)
             for job_name in job_dict:
+
                 # we move any "if" specified in the template to all of the jobs from the templates.
                 if "if" in job_template:
                     job_dict[job_name]["if"] = job_template["if"]
@@ -58,32 +61,39 @@ def _load_jobs(template: Dict) -> Dict:
     return final_jobs
 
 
-def _get_steps(job: Dict) -> List[str]:
+def _get_steps(job: Dict) -> List[Dict]:
     final_steps = []
     steps = job["steps"]
     for step in steps:
         step_template = step["template"]
-        with open(_get_file_path_or_default(step_template, DEFAULT_STEPS_DIR), "r") as sf:
+        with open(
+            _get_file_path_or_default(step_template, DEFAULT_STEPS_DIR), "r"
+        ) as sf:
             step_list = yaml.load(sf.read())
-            for s in step_list:
+
+            for (i, s) in enumerate(step_list):
+                if i == 0:
+                    s.yaml_set_start_comment(f"template: {step_template}", indent=4)
                 if "if" in step:
                     s["if"] = step["if"]
                 final_steps.append(s)
+
     return final_steps
 
 
 def _load_events(template: Dict) -> Dict:
-    events = []
+    events = {}
     all_events = template["events"]
     for e in all_events:
         event_template = e["template"]
-        with open(_get_file_path_or_default(event_template, DEFAULT_EVENTS_DIR)) as f:
-            events.append(yaml.load(f.read()))
-    on_obj = {}
-    for e in events:
-        for k, v in e.items():
-            on_obj[k] = v
-    return on_obj
+        path = _get_file_path_or_default(event_template, DEFAULT_EVENTS_DIR)
+        with open(path) as f:
+            yaml_event = yaml.load(f.read())
+            # comment is lost when converting to a dict. This is currently not working.
+            yaml_event.yaml_set_start_comment(f"template: {path}", indent=4)
+            events.update(yaml_event)
+
+    return events
 
 
 def template_github_action(template_path: str) -> Dict:
