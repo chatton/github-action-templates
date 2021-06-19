@@ -6,6 +6,7 @@ jobs:
     - template: examples/steps/hello-world-steps-0.yaml
     - template: examples/steps/hello-world-steps-1.yaml
     - template: examples/steps/setup-python-3.6.yaml
+      if: always()
     - template: examples/steps/embedded-bash-script.yaml
 events:
   - template: examples/events/on-push-to-master.yaml

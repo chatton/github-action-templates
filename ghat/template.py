@@ -1,7 +1,6 @@
 from typing import Dict, List
 import os
 import ruamel.yaml
-
 yaml = ruamel.yaml.YAML()
 
 DEFAULT_JOBS_DIR = "action_templates/jobs"
@@ -65,6 +64,8 @@ def _get_steps(job: Dict) -> List[str]:
         with open(_get_file_path_or_default(step_template, DEFAULT_STEPS_DIR), "r") as sf:
             step_list = yaml.load(sf.read())
             for s in step_list:
+                if "if" in step:
+                    s["if"] = step["if"]
                 final_steps.append(s)
     return final_steps
 
