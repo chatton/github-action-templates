@@ -12,7 +12,7 @@ Create a new directory for your templates.
 mkdir -p .action_templates/{jobs,steps,events}
 ```
 
-####Templated jobs should go in the `jobs` directory.
+#### Templated jobs should go in the `jobs` directory.
 
 ```yaml
 # .action_templates/jobs/hello-world.yaml
@@ -24,7 +24,8 @@ HelloWorld:
 *Note*: 
 * `steps` can be ommited if you are also providing a additional steps templates.
 * There should be a **single job** per file.
-####Templated steps go under the `steps` directory.
+
+#### Templated steps go under the `steps` directory.
 
 The contents of this file should be a yaml array with the step items to be templated.
 
@@ -40,7 +41,7 @@ The contents of this file should be a yaml array with the step items to be templ
 *Note* 
   * The `steps` key is ommited, we just provide the contents.
 
-####Templated events go in the `events` directory
+#### Templated events go in the `events` directory
 
 ```yaml
 # .action_templates/events/on-pull-request-master.yaml
@@ -49,7 +50,7 @@ pull_request:
     - master
 ```
 
-####Create the Template file to pull everything together
+#### Create the Template file to pull everything together
 
 ```yaml
 # .action_templates/my-github-action.yaml
@@ -116,10 +117,10 @@ python
    |----|----|----|---|
    | name | String | Name of the GitHub Action. | `My Github Action` |
    | jobs | Array |Array of jobs which the Github Action will contain |
-   | jobs[*].template |String| Full or relative path to the template file. Can be just the name if the default location (.action_templates/jobs) is used. | `.action_templates/jobs/hello-world.yaml` |
-   | jobs[*].if |String| Contents of the `if:` condition that will be used for this job. | `github.event.pull_request.head.repo.full_name == '<some-value>'`|
-   | jobs[*].steps |Array| Array of step template objects |||
-   | jobs[*].steps[*].template |String| Full or relative path to the template file. Can be just the name if the default location (.action_templates/steps) is used.| `python-setup`|
-   | jobs[*].steps[*].if |String|  Contents of the `if:` condition that will be used for **all steps** in this template. | `always()`|
+   | jobs[n].template |String| Full or relative path to the template file. Can be just the name if the default location (.action_templates/jobs) is used. | `.action_templates/jobs/hello-world.yaml` |
+   | jobs[n].if |String| Contents of the `if:` condition that will be used for this job. | `github.event.pull_request.head.repo.full_name == '<some-value>'`|
+   | jobs[n].steps |Array| Array of step template objects |||
+   | jobs[n].steps[n].template |String| Full or relative path to the template file. Can be just the name if the default location (.action_templates/steps) is used.| `python-setup`|
+   | jobs[n].steps[n].if |String|  Contents of the `if:` condition that will be used for **all steps** in this template. | `always()`|
    | events |Array| Array of events, these correspond to the `on` section of a workflow file. | 
-   | events[*].template |String| Full or relative path to the template file. Can be just the name if the default location (.action_templates/events) is used.| `on-pull-request-master` | 
+   | events[n].template |String| Full or relative path to the template file. Can be just the name if the default location (.action_templates/events) is used.| `on-pull-request-master` | 
