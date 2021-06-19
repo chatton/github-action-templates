@@ -1,6 +1,8 @@
 from typing import Dict, List
 import os
+import json
 import ruamel.yaml
+
 yaml = ruamel.yaml.YAML()
 
 DEFAULT_JOBS_DIR = ".action_templates/jobs"
@@ -8,8 +10,7 @@ DEFAULT_STEPS_DIR = ".action_templates/steps"
 DEFAULT_EVENTS_DIR = ".action_templates/events"
 
 
-def pp(obj):
-    import json
+def __pp(obj):
     print(json.dumps(obj, indent=4))
 
 
