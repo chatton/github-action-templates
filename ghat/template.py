@@ -42,21 +42,20 @@ def _load_jobs(template: Dict) -> Dict:
     job_templates = template["jobs"]
     final_jobs = []
     for job_template in job_templates:
-        path = job_template["template"]
-        with open(_get_file_path_or_default(path, DEFAULT_JOBS_DIR)) as f:
-            job_dict = yaml.load(f.read())
-            job_dict.yaml_set_start_comment(f"template: {path}", indent=2)
-            for job_name in job_dict:
+        path = _get_file_path_or_default(job_template["template"], DEFAULT_JOBS_DIR)
+        job_dict = _load_template_file(path)
+        job_dict.yaml_set_start_comment(f"template: {path}", indent=2)
+        for job_name in job_dict:
 
-                # we move any "if" specified in the template to all of the jobs from the templates.
-                if "if" in job_template:
-                    job_dict[job_name]["if"] = job_template["if"]
+            # we move any "if" specified in the template to all of the jobs from the templates.
+            if "if" in job_template:
+                job_dict[job_name]["if"] = job_template["if"]
 
-                # we assign directly all of the steps references in the templates.
-                if "steps" in job_template:
-                    job_dict[job_name]["steps"] = _get_steps(job_template)
+            # we assign directly all of the steps references in the templates.
+            if "steps" in job_template:
+                job_dict[job_name]["steps"] = _get_steps(job_template)
 
-            final_jobs.append(job_dict)
+        final_jobs.append(job_dict)
     return _merge_yaml_lists_into_dict(final_jobs)
 
 
@@ -65,17 +64,16 @@ def _get_steps(job: Dict) -> List[Dict]:
     steps = job["steps"]
     for step in steps:
         step_template = step["template"]
-        with open(
-            _get_file_path_or_default(step_template, DEFAULT_STEPS_DIR), "r"
-        ) as sf:
-            step_list = yaml.load(sf.read())
+        path = _get_file_path_or_default(step_template, DEFAULT_STEPS_DIR)
+        step_list = _load_template_file(path)
 
-            for (i, s) in enumerate(step_list):
-                if i == 0:
-                    s.yaml_set_start_comment(f"template: {step_template}", indent=4)
-                if "if" in step:
-                    s["if"] = step["if"]
-                final_steps.append(s)
+        for (i, s) in enumerate(step_list):
+            if i == 0:
+                s.yaml_set_start_comment(f"template: {path}", indent=4)
+
+            if "if" in step:
+                s["if"] = step["if"]
+            final_steps.append(s)
 
     return final_steps
 
