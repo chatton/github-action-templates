@@ -8,5 +8,6 @@ jobs:
         with:
           python-version: '3.8'
       - run: pip install -r requirements.txt
+      - run: pip install .
       - run: pip install pytest
       - run: pytest -v tests/
