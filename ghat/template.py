@@ -2,6 +2,7 @@ from typing import Dict, List
 import os
 import json
 import ruamel.yaml
+import io
 
 yaml = ruamel.yaml.YAML()
 
@@ -39,13 +40,12 @@ def _get_file_path_or_default(path: str, default_path: str) -> str:
 
 def _load_jobs(template: Dict) -> Dict:
     job_templates = template["jobs"]
-    final_jobs = {}
+    final_jobs = []
     for job_template in job_templates:
         path = job_template["template"]
         with open(_get_file_path_or_default(path, DEFAULT_JOBS_DIR)) as f:
             job_dict = yaml.load(f.read())
-            # comment does not work as we return a dict, not a yaml object.
-            # job_dict.yaml_set_start_comment("Template: " + path, indent=4)
+            job_dict.yaml_set_start_comment("Template: " + path, indent=2)
             for job_name in job_dict:
 
                 # we move any "if" specified in the template to all of the jobs from the templates.
@@ -56,9 +56,8 @@ def _load_jobs(template: Dict) -> Dict:
                 if "steps" in job_template:
                     job_dict[job_name]["steps"] = _get_steps(job_template)
 
-            # add the job by name to the final result.
-            final_jobs[job_name] = job_dict[job_name]
-    return final_jobs
+            final_jobs.append(job_dict)
+    return _merge_yaml_lists_into_dict(final_jobs)
 
 
 def _get_steps(job: Dict) -> List[Dict]:
@@ -82,18 +81,32 @@ def _get_steps(job: Dict) -> List[Dict]:
 
 
 def _load_events(template: Dict) -> Dict:
-    events = {}
+    events = []
     all_events = template["events"]
     for e in all_events:
         event_template = e["template"]
         path = _get_file_path_or_default(event_template, DEFAULT_EVENTS_DIR)
         with open(path) as f:
             yaml_event = yaml.load(f.read())
-            # comment is lost when converting to a dict. This is currently not working.
-            yaml_event.yaml_set_start_comment(f"template: {path}", indent=4)
-            events.update(yaml_event)
+            yaml_event.yaml_set_start_comment(f"template: {path}", indent=2)
+            events.append(yaml_event)
 
-    return events
+    return _merge_yaml_lists_into_dict(events)
+
+
+def _merge_yaml_lists_into_dict(yaml_elements: List[Dict]) -> Dict:
+    """
+    _merge_yaml_lists_into_dict converts a list of elements into a dict.
+    this function preserves yaml comments.
+
+    :param yaml_elements: a list of yaml elements
+    :return: a yaml dictionary consisting of all of these elements.
+    """
+    string_stream = io.StringIO()
+    for e in yaml_elements:
+        yaml.dump(e, string_stream)
+    string_stream.seek(0)
+    return yaml.load(string_stream)
 
 
 def template_github_action(template_path: str) -> Dict:
