@@ -45,7 +45,7 @@ def _load_jobs(template: Dict) -> Dict:
         path = job_template["template"]
         with open(_get_file_path_or_default(path, DEFAULT_JOBS_DIR)) as f:
             job_dict = yaml.load(f.read())
-            job_dict.yaml_set_start_comment("Template: " + path, indent=2)
+            job_dict.yaml_set_start_comment(f"template: {path}", indent=2)
             for job_name in job_dict:
 
                 # we move any "if" specified in the template to all of the jobs from the templates.
