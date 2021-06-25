@@ -9,7 +9,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name="github-action-templates",
-    version="0.0.2",
+    version="0.0.3",
     description="Template GitHub Actions",
     author="Cian Hatton",
     author_email="cianhatton@gmail.com",
