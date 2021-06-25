@@ -1,14 +1,15 @@
 name: "Example 0"
 jobs:
-  - template: examples/jobs/hello-world.yaml
+  - template: hello-world
     if: github.event.pull_request.head.repo.full_name != 'mongodb/mongodb-kubernetes-operator' && contains(github.event.pull_request.labels.*.name, 'safe-to-test')
     steps:
-    - template: examples/steps/hello-world-steps-0.yaml
+    - template: hello-world-steps-0
       if: success()
     - template: examples/steps/hello-world-steps-1.yaml
     - template: examples/steps/setup-python-3.6.yaml
       if: always()
     - template: examples/steps/embedded-bash-script.yaml
+  - template: https://raw.githubusercontent.com/mongodb/mongodb-kubernetes-operator/master/.action_templates/jobs/tests.yaml
 events:
   - template: examples/events/on-push-to-master.yaml
   - template: examples/events/on-pull-request-master.yaml
