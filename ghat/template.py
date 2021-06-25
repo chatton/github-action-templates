@@ -17,6 +17,13 @@ def __pp(obj):
 
 
 def _load_template(template: str) -> Dict:
+
+    # a full or relative path was provided, just use it directly.
+    if os.path.exists(template):
+        with open(template, "r") as f:
+            return yaml.load(f.read())
+
+    # find any files that have yaml or yml extentions that match.
     for subdir, _, files in os.walk("examples"):
         for f in files:
             stripped = f.rstrip(".yml").rstrip(".yaml")

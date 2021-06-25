@@ -9,6 +9,7 @@ jobs:
     - template: examples/steps/setup-python-3.6.yaml
       if: always()
     - template: examples/steps/embedded-bash-script.yaml
+  - template: https://raw.githubusercontent.com/mongodb/mongodb-kubernetes-operator/master/.action_templates/jobs/tests.yaml
 events:
   - template: examples/events/on-push-to-master.yaml
   - template: examples/events/on-pull-request-master.yaml
