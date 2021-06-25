@@ -3,6 +3,7 @@ import os
 import json
 import ruamel.yaml
 import io
+import requests
 
 yaml = ruamel.yaml.YAML()
 
@@ -15,8 +16,28 @@ def __pp(obj):
     print(json.dumps(obj, indent=4))
 
 
-def _load_template_file(filename: str) -> Dict:
-    with open(filename, "r") as f:
+def _load_template(template: str) -> Dict:
+    for subdir, _, files in os.walk("examples"):
+        for f in files:
+            stripped = f.rstrip(".yml").rstrip(".yaml")
+            full_file = os.path.join(subdir, stripped)
+            if os.path.exists(full_file + ".yml") and template == stripped:
+                with open(full_file + ".yml", "r") as f2:
+                    return yaml.load(f2.read())
+
+
+            if os.path.exists(full_file + ".yaml") and template == stripped:
+                with open(full_file + ".yaml", "r") as f2:
+                    return yaml.load(f2.read())
+
+
+    if template.startswith("http"):
+        resp = requests.get(template, stream=True)
+        resp.raise_for_status()
+        return yaml.load(resp.content)
+
+
+    with open(template, "r") as f:
         return yaml.load(f.read())
 
 
@@ -42,11 +63,11 @@ def _load_jobs(template: Dict) -> Dict:
     job_templates = template["jobs"]
     final_jobs = []
     for job_template in job_templates:
-        path = _get_file_path_or_default(job_template["template"], DEFAULT_JOBS_DIR)
-        job_dict = _load_template_file(path)
-        job_dict.yaml_set_start_comment(f"template: {path}", indent=2)
-        for job_name in job_dict:
 
+        template_name = job_template["template"]
+        job_dict = _load_template(template_name)
+        job_dict.yaml_set_start_comment(f"template: {template_name}", indent=2)
+        for job_name in job_dict:
             # we move any "if" specified in the template to all of the jobs from the templates.
             if "if" in job_template:
                 job_dict[job_name]["if"] = job_template["if"]
@@ -64,12 +85,10 @@ def _get_steps(job: Dict) -> List[Dict]:
     steps = job["steps"]
     for step in steps:
         step_template = step["template"]
-        path = _get_file_path_or_default(step_template, DEFAULT_STEPS_DIR)
-        step_list = _load_template_file(path)
-
+        step_list = _load_template(step_template)
         for (i, s) in enumerate(step_list):
             if i == 0:
-                s.yaml_set_start_comment(f"template: {path}", indent=4)
+                s.yaml_set_start_comment(f"template: {step_template}", indent=4)
 
             if "if" in step:
                 s["if"] = step["if"]
@@ -82,12 +101,10 @@ def _load_events(template: Dict) -> Dict:
     events = []
     all_events = template["events"]
     for e in all_events:
-        event_template = e["template"]
-        path = _get_file_path_or_default(event_template, DEFAULT_EVENTS_DIR)
-        with open(path) as f:
-            yaml_event = yaml.load(f.read())
-            yaml_event.yaml_set_start_comment(f"template: {path}", indent=2)
-            events.append(yaml_event)
+        event_name = e["template"]
+        yaml_event = _load_template(e["template"])
+        yaml_event.yaml_set_start_comment(f"template: {event_name}", indent=2)
+        events.append(yaml_event)
 
     return _merge_yaml_lists_into_dict(events)
 
@@ -108,7 +125,8 @@ def _merge_yaml_lists_into_dict(yaml_elements: List[Dict]) -> Dict:
 
 
 def template_github_action(template_path: str) -> Dict:
-    template = _load_template_file(template_path)
+    template = _load_template(template_path)
+    # __pp(template)
     name = template["name"]
     jobs = _load_jobs(template)
     events = _load_events(template)
