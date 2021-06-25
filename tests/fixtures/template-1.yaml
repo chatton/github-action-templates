@@ -1,0 +1,7 @@
+name: "Example 1"
+jobs:
+  - template: https://raw.githubusercontent.com/chatton/github-action-templates/master/tests/fixtures/jobs/hello-world.yaml
+steps:
+  - template: tests/fixtures/steps/hello-world-steps-0.yaml
+events:
+  - template: tests/fixtures/events/on-push-to-master.yaml

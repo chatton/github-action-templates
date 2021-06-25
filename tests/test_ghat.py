@@ -8,6 +8,10 @@ from ghat.template import template_github_action
 def template_0() -> Dict:
     yield template_github_action("tests/fixtures/template-0.yaml")
 
+@pytest.fixture(scope="module")
+def template_1() -> Dict:
+    yield template_github_action("tests/fixtures/template-1.yaml")
+
 
 def test_jobs_can_be_templated(template_0: Dict):
     assert len(template_0["jobs"]) == 1
@@ -43,3 +47,19 @@ def test_events_can_be_templated(template_0: Dict):
     assert events["pull_request"]["branches"][0] == "master"
     assert events["push"]["branches"][0] == "master"
     assert "workflow_dispatch" in events
+
+def test_urls_can_be_used_for_templating_jobs(template_1: Dict):
+    assert len(template_1["jobs"]) == 1
+    assert template_1["jobs"]["HelloWorld"]["if"] == "success()"
+
+
+# TODO:
+
+# def test_urls_can_be_used_for_templating_steps
+# def test_urls_can_be_used_for_templating_events
+# def test_relative_paths_can_be_used
+# def test_absolute_paths_can_be_used
+# def test_file_name_with_yaml_extension_can_be_used
+# def test_file_name_with_yml_extension_can_be_used
+# def test_custom_actions_dir
+# def test_exception_raised_when_file_does_not_exist
