@@ -18,6 +18,12 @@ def __pp(obj):
 
 def _load_template(template: str) -> Dict:
 
+    # it is a link, try to fetch the yaml contents.
+    if template.startswith("http"):
+        resp = requests.get(template, stream=True)
+        resp.raise_for_status()
+        return yaml.load(resp.content)
+
     # a full or relative path was provided, just use it directly.
     if os.path.exists(template):
         with open(template, "r") as f:
@@ -37,33 +43,6 @@ def _load_template(template: str) -> Dict:
                 with open(full_file + ".yaml", "r") as f2:
                     return yaml.load(f2.read())
 
-
-    if template.startswith("http"):
-        resp = requests.get(template, stream=True)
-        resp.raise_for_status()
-        return yaml.load(resp.content)
-
-
-    with open(template, "r") as f:
-        return yaml.load(f.read())
-
-
-def _get_file_path_or_default(path: str, default_path: str) -> str:
-    if os.path.exists(path):
-        return path
-    if os.path.exists(path + ".yml"):
-        return path + ".yml"
-    if os.path.exists(path + ".yaml"):
-        return path + ".yaml"
-
-    default = os.path.join(default_path, path)
-    if os.path.exists(default):
-        return default
-    if os.path.exists(default + ".yml"):
-        return default + ".yml"
-    if os.path.exists(default + ".yaml"):
-        return default + ".yaml"
-    raise ValueError("No such file: {}!".format(path))
 
 
 def _load_jobs(template: Dict) -> Dict:
