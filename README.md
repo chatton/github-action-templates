@@ -117,10 +117,17 @@ python
    |----|----|----|---|
    | name | String | Name of the GitHub Action. | `My Github Action` |
    | jobs | Array |Array of jobs which the Github Action will contain |
-   | jobs[n].template |String| Full or relative path to the template file. Can be just the name if the default location (.action_templates/jobs) is used. | `.action_templates/jobs/hello-world.yaml` |
+   | jobs[n].template |String| Location of the file to the template file. | `.action_templates/jobs/hello-world.yaml` |
    | jobs[n].if |String| Contents of the `if:` condition that will be used for this job. | `github.event.pull_request.head.repo.full_name == '<some-value>'`|
    | jobs[n].steps |Array| Array of step template objects |||
-   | jobs[n].steps[n].template |String| Full or relative path to the template file. Can be just the name if the default location (.action_templates/steps) is used.| `python-setup`|
+   | jobs[n].steps[n].template |String| Location of the file to the template file. | `python-setup`|
    | jobs[n].steps[n].if |String|  Contents of the `if:` condition that will be used for **all steps** in this template. | `always()`|
    | events |Array| Array of events, these correspond to the `on` section of a workflow file. | 
    | events[n].template |String| Full or relative path to the template file. Can be just the name if the default location (.action_templates/events) is used.| `on-pull-request-master` | 
+
+Note on file locations.
+
+File location can be the absolute or relative path of a file. An optional argument is accepted to the `template_github_action`. This accepts a directory to search for template files.
+Just the name of the file can be provided if it exists within this directory and has a .yml or .yaml extension.
+
+A url can also be used as long as the response contains valid yaml. E.g. `https://raw.githubusercontent.com/mongodb/mongodb-kubernetes-operator/master/.action_templates/jobs/tests.yaml`
