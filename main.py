@@ -17,7 +17,10 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = _parse_args()
-    github_action = template_github_action(args.template, actions_dir=args.dir)
+    if args.dir:
+        github_action = template_github_action(args.template, actions_dir=args.dir)
+    else:
+        github_action = template_github_action(args.template)
     yaml.dump(github_action, sys.stdout)
     return 0
 

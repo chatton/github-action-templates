@@ -7,27 +7,16 @@ import requests
 
 yaml = ruamel.yaml.YAML()
 
-DEFAULT_JOBS_DIR = ".action_templates/jobs"
-DEFAULT_STEPS_DIR = ".action_templates/steps"
-DEFAULT_EVENTS_DIR = ".action_templates/events"
-
-
 def __pp(obj):
     print(json.dumps(obj, indent=4))
 
 
 def _load_template(template: str, actions_dir: str) -> Tuple[Dict, str]:
-
     # it is a link, try to fetch the yaml contents.
     if template.startswith("http"):
         resp = requests.get(template, stream=True)
         resp.raise_for_status()
         return yaml.load(resp.content), template
-
-    # a full or relative path was provided, just use it directly.
-    if os.path.exists(template):
-        with open(template, "r") as f:
-            return yaml.load(f.read()), template
 
     # find any files that have yaml or yml extentions that match.
     for subdir, _, files in os.walk(actions_dir):
@@ -38,11 +27,16 @@ def _load_template(template: str, actions_dir: str) -> Tuple[Dict, str]:
                 with open(full_file + ".yml", "r") as f2:
                     return yaml.load(f2.read()), full_file + ".yml" 
 
-
             if os.path.exists(full_file + ".yaml") and template == stripped:
                 with open(full_file + ".yaml", "r") as f2:
                     return yaml.load(f2.read()), full_file + ".yaml"
-                    
+
+    # TOOD: this will also find a file that is in the root of the directory if not under the actions dir!
+    # a full or relative path was provided, just use it directly.
+    if os.path.exists(template):
+        with open(template, "r") as f:
+            return yaml.load(f.read()), template
+
     raise ValueError("Unable to find template for {}".format(template))
 
 
@@ -51,7 +45,6 @@ def _load_jobs(template: Dict, actions_dir: str) -> Dict:
     job_templates = template["jobs"]
     final_jobs = []
     for job_template in job_templates:
-
         job_dict, job_template_path = _load_template(job_template["template"], actions_dir)
         job_dict.yaml_set_start_comment(f"template: {job_template_path}", indent=2)
         for job_name in job_dict:
@@ -109,7 +102,7 @@ def _merge_yaml_lists_into_dict(yaml_elements: List[Dict]) -> Dict:
     return yaml.load(string_stream)
 
 
-def template_github_action(template_path: str, actions_dir=".action_workflows") -> Dict:
+def template_github_action(template_path: str, actions_dir=".action_templates") -> Dict:
     template, _ = _load_template(template_path, actions_dir)
     name = template["name"]
     jobs = _load_jobs(template, actions_dir)
