@@ -13,7 +13,7 @@ setup(
     description="Template GitHub Actions",
     author="Cian Hatton",
     author_email="cianhatton@gmail.com",
-    url="https://github.com/chatton/GithubActionTemplates",
+    url="https://github.com/chatton/github-action-templates",
     packages=find_packages(),
     long_description=long_description,
     long_description_content_type='text/markdown'
