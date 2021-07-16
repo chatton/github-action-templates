@@ -1,6 +1,9 @@
 name: "Param Template"
 jobs:
-  - template: tests/fixtures/jobs/hello-world.yaml
+  - template: tests/fixtures/jobs/parameterised-job.yaml
+    params:
+      runs-on: ubuntu-latest
+      some-key: some-value
     steps:
     - template: tests/fixtures/steps/checkout-param.yaml
       params:
@@ -8,4 +11,6 @@ jobs:
         repository: ${{ github.repository }}
 
 events:
-  - template: tests/fixtures/events/on-push-to-master.yaml
+  - template: tests/fixtures/events/on-push-to-master-param.yaml
+    params:
+      branch-name: master

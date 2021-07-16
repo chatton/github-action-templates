@@ -56,6 +56,8 @@ def _load_jobs(template: Dict, actions_dir: str) -> Dict:
             if "steps" in job_template:
                 job_dict[job_name]["steps"] = _get_steps(job_template, actions_dir)
 
+            _interpolate_values(job_dict, job_template.get("params", {}))
+
         final_jobs.append(job_dict)
     return _merge_yaml_lists_into_dict(final_jobs)
 
@@ -85,6 +87,7 @@ def _load_events(template: Dict, actions_dir: str) -> Dict:
     for e in all_events:
         yaml_event, event_template_path = _load_template(e["template"], actions_dir)
         yaml_event.yaml_set_start_comment(f"template: {event_template_path}", indent=2)
+        _interpolate_values(yaml_event, e.get("params", {}))
         events.append(yaml_event)
 
     return _merge_yaml_lists_into_dict(events)
@@ -105,15 +108,27 @@ def _merge_yaml_lists_into_dict(yaml_elements: List[Dict]) -> Dict:
     return yaml.load(string_stream)
 
 
-def _interpolate_values(step: Dict, params: Dict):
-    for k, v in step.items():
+def _interpolate_values(obj: Dict, params: Dict):
+    for k, v in obj.items():
         if isinstance(v, dict):
             _interpolate_values(v, params)
             continue
 
+        possible_interpolated_values = [f"$(params.{value})" for value in params.keys()]
+        if isinstance(v, list):
+            for i in range(len(v)):
+                item = v[i]
+                if item in possible_interpolated_values:
+                    param_key = _extract_interpolated_value(item)
+                    v[i] = params[param_key]
+
         to_replace = f"$(params.{k})"
         if v == to_replace:
-            step[k] = params[k]
+            obj[k] = params[k]
+
+
+def _extract_interpolated_value(value: str) -> str:
+    return value.lstrip("$(params.")[:-1]
 
 
 def template_github_action(template_path: str, actions_dir=".action_templates") -> Dict:

@@ -61,10 +61,21 @@ def test_urls_can_be_used_for_templating_jobs(template_1: Dict):
 
 
 def test_step_can_be_parameterised(param_template: Dict):
-    step = param_template["jobs"]["HelloWorld"]["steps"][0]
+    step = param_template["jobs"]["ParameterizedJob"]["steps"][0]
 
     assert step["with"]["ref"] == "${{ some/github/value }}"
     assert step["with"]["repository"] == "${{ github.repository }}"
+
+
+def test_job_can_be_parameterised(param_template: Dict):
+    job = param_template["jobs"]["ParameterizedJob"]
+
+    assert job["runs-on"] == "ubuntu-latest"
+    assert job["some-key"] == "some-value"
+
+
+def test_event_can_be_parameterised(param_template: Dict):
+    assert param_template["on"]["push"]["branches"][0] == "master"
 
 
 # TODO:

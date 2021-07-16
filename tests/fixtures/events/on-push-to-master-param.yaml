@@ -1,0 +1,3 @@
+push:
+  branches:
+    - $(params.branch-name)

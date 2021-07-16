@@ -1,0 +1,3 @@
+ParameterizedJob:
+  runs-on: $(params.runs-on)
+  some-key: $(params.some-key)
