@@ -26,7 +26,7 @@ def _load_template(template: str, actions_dir: str) -> Tuple[Dict, str]:
             full_file = os.path.join(subdir, stripped)
             if os.path.exists(full_file + ".yml") and template == stripped:
                 with open(full_file + ".yml", "r") as f2:
-                    return yaml.load(f2.read()), full_file + ".yml" 
+                    return yaml.load(f2.read()), full_file + ".yml"
 
             if os.path.exists(full_file + ".yaml") and template == stripped:
                 with open(full_file + ".yaml", "r") as f2:
@@ -71,6 +71,9 @@ def _get_steps(job: Dict, actions_dir: str) -> List[Dict]:
 
             if "if" in step:
                 s["if"] = step["if"]
+
+            _interpolate_values(s, step.get("params", {}))
+
             final_steps.append(s)
 
     return final_steps
@@ -102,11 +105,23 @@ def _merge_yaml_lists_into_dict(yaml_elements: List[Dict]) -> Dict:
     return yaml.load(string_stream)
 
 
+def _interpolate_values(step: Dict, params: Dict):
+    for k, v in step.items():
+        if isinstance(v, dict):
+            _interpolate_values(v, params)
+            continue
+
+        to_replace = f"$(params.{k})"
+        if v == to_replace:
+            step[k] = params[k]
+
+
 def template_github_action(template_path: str, actions_dir=".action_templates") -> Dict:
     template, _ = _load_template(template_path, actions_dir)
     name = template["name"]
     jobs = _load_jobs(template, actions_dir)
     events = _load_events(template, actions_dir)
+
     return {
         "name": name,
         "on": events,

@@ -14,6 +14,11 @@ def template_1() -> Dict:
     yield template_github_action("tests/fixtures/template-1.yaml")
 
 
+@pytest.fixture(scope="module")
+def param_template() -> Dict:
+    yield template_github_action("tests/fixtures/template-param.yaml")
+
+
 def test_jobs_can_be_templated(template_0: Dict):
     assert len(template_0["jobs"]) == 1
 
@@ -49,9 +54,17 @@ def test_events_can_be_templated(template_0: Dict):
     assert events["push"]["branches"][0] == "master"
     assert "workflow_dispatch" in events
 
+
 def test_urls_can_be_used_for_templating_jobs(template_1: Dict):
     assert len(template_1["jobs"]) == 1
     assert template_1["jobs"]["HelloWorld"]["if"] == "success()"
+
+
+def test_step_can_be_parameterised(param_template: Dict):
+    step = param_template["jobs"]["HelloWorld"]["steps"][0]
+
+    assert step["with"]["ref"] == "${{ some/github/value }}"
+    assert step["with"]["repository"] == "${{ github.repository }}"
 
 
 # TODO:

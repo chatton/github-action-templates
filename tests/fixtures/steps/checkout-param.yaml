@@ -1,0 +1,5 @@
+- name: Checkout Code
+  uses: actions/checkout@v2
+  with:
+    ref: $(params.ref)
+    repository: $(params.repository)

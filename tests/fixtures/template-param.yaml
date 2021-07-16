@@ -1,0 +1,11 @@
+name: "Param Template"
+jobs:
+  - template: tests/fixtures/jobs/hello-world.yaml
+    steps:
+    - template: tests/fixtures/steps/checkout-param.yaml
+      params:
+        ref: ${{ some/github/value }}
+        repository: ${{ github.repository }}
+
+events:
+  - template: tests/fixtures/events/on-push-to-master.yaml
