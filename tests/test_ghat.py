@@ -8,6 +8,7 @@ from ghat.template import template_github_action
 def template_0() -> Dict:
     yield template_github_action("tests/fixtures/template-0.yaml")
 
+
 @pytest.fixture(scope="module")
 def template_1() -> Dict:
     yield template_github_action("tests/fixtures/template-1.yaml")

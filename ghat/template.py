@@ -7,6 +7,7 @@ import requests
 
 yaml = ruamel.yaml.YAML()
 
+
 def __pp(obj):
     print(json.dumps(obj, indent=4))
 
@@ -38,7 +39,6 @@ def _load_template(template: str, actions_dir: str) -> Tuple[Dict, str]:
             return yaml.load(f.read()), template
 
     raise ValueError("Unable to find template for {}".format(template))
-
 
 
 def _load_jobs(template: Dict, actions_dir: str) -> Dict:
